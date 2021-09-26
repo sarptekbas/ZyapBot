@@ -1,4 +1,4 @@
-# ZyapBot
+# ZyapBot v1.0
 ## _A Discord bot built with node.js for zyapguy's Discord server_
 
 Zyapbot is a Discord bot made with node.js.
