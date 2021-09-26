@@ -1,4 +1,4 @@
-# ZyapBot v1.0
+# ZyapBot
 ## _A Discord bot built with node.js for zyapguy's Discord server_
 
 Zyapbot is a Discord bot made with node.js.
@@ -40,6 +40,15 @@ For production environments...
 npm install --production
 NODE_ENV=production node index.js
 ```
+
+## Integration
+
+If you want to integrate ZyapBot into your own server, change the functions:
+
+- ```roleToString()```
+- ```purgeAuthorityValues()```
+
+to your servers staff values. If you don't do this, the bot cannot function correctly!
 
 ## Development
 
