@@ -8,7 +8,20 @@ Started 04/09/2021
 v1.0 - 
 
 
+Nightly 26/09/2021
+[
+    - Cleaned up log command
+
+]
+
 */
+
+
+
+const nightly = true; // Change to false if build is NOT nightly
+const experimental = true;
+
+
 
 // Dependencies and requirememts
 const { Client, Intents, ThreadMemberManager } = require('discord.js');
@@ -17,15 +30,13 @@ const { MessageButton, MessageEmbed } = require('discord.js');
 const paginationEmbed = require('discordjs-button-pagination');
 require('dotenv').config();
 var token = process.env.TOKEN;
-
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
 const fs = require('fs');
-
-const logsChannel = '883785241716731954';
-
+let logsChannel = '883785241716731954';
+const nightlyLogsChannel = '891641354034245693';
 const sarpSupportTag = `<@426410106565951519>`;
 const zyapSupportTag = `<@291592918592913408>`;
-
+const prefix = "$";
 const delay = (msec) => new Promise((resolve) => setTimeout(resolve, msec));
 
 function getTime()
@@ -58,10 +69,10 @@ function getTime()
 // The log function is a function that will log admin actions
 // into a channel and into a text file
 // Written by : zyapguy */ 
-function log(log)
+function log(log, logtype)
 {
-    client.channels.cache.get(logsChannel).send("[LOG " + getTime() + "] " + log);
-    const toLog = "[LOG " + getTime() + "] " + log + "\n";
+    client.channels.cache.get(logsChannel).send("[" + logtype + " " + getTime() + "] " + log);
+    const toLog = "[" + logtype + " " + getTime() + "] " + log + "\n";
 
     fs.appendFile('logs.txt', toLog, function (err) 
     {
@@ -69,19 +80,6 @@ function log(log)
         console.log('Saved!');
     });
 }
-
-function delLog(log)
-{
-    client.channels.cache.get(logsChannel).send("[DELETION " + getTime() + "] " + log);
-    const toLog = "[MESSAGE DELETED " + getTime() + "] " + log + "\n";
-
-    fs.appendFile('logs.txt', toLog, function (err) 
-    {
-        if (err) throw err;
-        console.log('Saved!');
-    });
-}
-
 function checkPermissions(message, array)
 {
     const role = roleToString(message.member);
@@ -96,7 +94,6 @@ function checkPermissions(message, array)
     //message.reply("You do not have permission to run that command!");
     return false;
 }
-
 /*
 Usage of roleToString.
 if (roleToString(message.member) == "Mod" || )
@@ -139,7 +136,6 @@ function roleToString(member)
         return "User";
     }
 }
-
 function purgeAuthorityValues(role)
 {
     if (role == "Admin")
@@ -167,7 +163,6 @@ function purgeAuthorityValues(role)
         return 5;
     }
 }
-
 function clamp(num, min, max) 
 {
     return num <= min 
@@ -175,8 +170,7 @@ function clamp(num, min, max)
       : num >= max 
         ? max 
         : num
-  }
-
+}
 function clampToRole(message, value)
 {
     let role = roleToString(message.member);
@@ -191,13 +185,21 @@ function clampToRole(message, value)
     return clamped;
 }
 
-const prefix = "$";
 
 client.on('ready',()=>
 {
-    //log("ZyapBot MK2 Started.");
+    if (nightly)
+    {
+        logsChannel = nightlyLogsChannel;
+    }
+    let res = (1 > 3) ? "is greater" : "is less than";
+    let build_state = !nightly ? "build" : "nightly";
+    let experimental_state = !experimental ? "disabled" : "enabled";
+
+    console.log("zyapbot running version " + build_state + " with experimental features " + experimental_state);
+    
+
 	client.user.setActivity("you", { type: 'WATCHING'});
-    //client.channels.cache.get(`867441128725807105`).send(".");
 });
 
 client.on("messageDelete", message => {
@@ -206,7 +208,7 @@ client.on("messageDelete", message => {
         if(logsChannel)
         {
             //client.channels.cache.get(logsChannel).send(message.author.tag + " deleted " + message.content + " at " + message.channel.name + " channel");
-            delLog(message.author.tag + ` deleted message "` + message.content + `" at "` + message.channel.name + `" channel`);
+            log(message.author.tag + ` deleted message "` + message.content + `" at "` + message.channel.name + `" channel`, "DELETION");
         }
     }
 });
@@ -253,6 +255,7 @@ client.on("message", async message =>
         //message.reply(`Ping command is deprecated!`);
     }
 
+    // TODO : Add checkpermissions
     if (command === "log")
     {
         let toLog = "";
@@ -260,7 +263,7 @@ client.on("message", async message =>
         {
             toLog += message.content.split(" ")[i] + " ";
         }
-        log(toLog);
+        log(toLog, "LOG");
     }
 
     /* Purge(purge)
@@ -283,7 +286,7 @@ client.on("message", async message =>
         .then(msg => {setTimeout(() => msg.delete(), 3000)
         })
        .catch()
-        log("<@" + message.author.id + ">" + "has purged " + clampToRole(message, amount) + " messages")
+        log("<@" + message.author.id + ">" + "has purged " + clampToRole(message, amount) + " messages", "PURGE")
     }
     
 
@@ -317,7 +320,7 @@ client.on("message", async message =>
                 targetMember.ban({ reason: `${reason}` })
                 .then(() => {
                     message.channel.send(`${targetMember} has been banned for "${reasonWithoutID}" successfully.`);
-                    log(memberThatIsGoingToBeBannedTag + " has been banned by " + "<@" + message.author.id + ">"  + " for " + reasonWithoutID);
+                    log(memberThatIsGoingToBeBannedTag + " has been banned by " + "<@" + message.author.id + ">"  + " for " + reasonWithoutID, "BAN");
                 })
                 .catch(() => {
                     message.channel.send(`An unexpected error has occured. Please notify ${sarpSupportTag} and ${zyapSupportTag} about this.`);
@@ -354,7 +357,7 @@ client.on("message", async message =>
             targetMember.ban({ reason: `${reason}` })
 
             .then(() => {
-                log(memberThatIsGoingToBeSilentBannedTag + " has been **SILENTLY** banned by " + "<@" + message.author.id + ">" + " for " + reasonWithoutID);
+                log(memberThatIsGoingToBeSilentBannedTag + " has been **SILENTLY** banned by " + "<@" + message.author.id + ">" + " for " + reasonWithoutID, "SILENT BAN");
             })
             .then(msg => {
                 setTimeout(() => message.channel.bulkDelete(1), 200)
@@ -393,7 +396,7 @@ client.on("message", async message =>
 
             .then(() => {
                 message.channel.send(`${memberThatIsGoingToBeUnbannedTag} has been unbanned successfully.`);
-                log(memberThatIsGoingToBeUnbannedTag + " has been unbanned by " + "<@" + message.author.id + ">"  + " for NO_REASON_SPECIFIED");
+                log(memberThatIsGoingToBeUnbannedTag + " has been unbanned by " + "<@" + message.author.id + ">"  + " for NO_REASON_SPECIFIED", "UNBAN");
             })
 
             .catch(() => {
@@ -435,7 +438,7 @@ client.on("message", async message =>
                 targetMember.kick()
                 .then(() => {
                     message.channel.send(`${targetMember} has been kicked successfully.`);
-                    log(memberThatIsGoingToBeKickedTag + " has been kicked by " + "<@" + message.author.id + ">");
+                    log(memberThatIsGoingToBeKickedTag + " has been kicked by " + "<@" + message.author.id + ">", "KICK");
                 })
                 .catch(() => {
                     message.channel.send(`An unexpected error has occured. Please notify ${sarpSupportTag} and ${zyapSupportTag} about this.`);
@@ -499,7 +502,7 @@ client.on("message", async message =>
             .then(() => {
                 message.channel.send(body)
                 .then(() => {
-                    log("<@" + message.author.id + ">" + " sent: '" + body + "' using the say command");
+                    log("<@" + message.author.id + ">" + " sent: '" + body + "' using the say command", "SAY");
                 });
             });
         }
