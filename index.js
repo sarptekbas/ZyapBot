@@ -2,7 +2,7 @@
 
 ZyapBot ReWrite
 --------------------
-by Sarp and Zyapguy
+by Beriff, Sarp and Zyapguy
 
 Started 04/09/2021
 v1.0 - 
@@ -560,7 +560,7 @@ client.on("message", async message =>
             }
             ],
             "footer": {
-                "text": `Made by zyapguy#0320 and sarp#2063`
+                "text": `Made by Beriff#3224, zyapguy#0320 and sarp#2063`
             }
         };
         message.channel.send({embeds: [helpEmbed]});
@@ -613,9 +613,9 @@ client.on("message", async message =>
             {
                 "name": `Unban`,
                 "value": `You can use the unban command to unban users that were banned before if you are a moderator or higher.\nUsage example: \`$unban userid\`\n **IF YOU PING THE USER INSTEAD OF WRITING THE USER ID, THE BOT WILL CRASH!**`
-            }
-            );
-
+            },
+            )
+	    .setFooter('Made by Beriff, Sarp and Zyapguy');
         
         const button1 = new MessageButton()
             .setCustomId('previousbtn')
