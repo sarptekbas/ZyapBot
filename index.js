@@ -666,6 +666,11 @@ client.on("message", async message =>
         });
     }
 
+    /* User info (userinfo)
+    // If you are a community moderator or higher,
+    // you can use this command to get information
+    // about any user.
+    // Written by : zelta & sarp */ 
     if (command === "userinfo")
     {
         if (checkPermissions(message, ["Mod", "SrMod", "Admin", "zyapguy", "CmMod"])) 
