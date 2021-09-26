@@ -488,6 +488,11 @@ client.on("message", async message =>
         }
     }
   
+    /* Say (say)
+    // If you are a community moderator or higher, 
+    // you can use the bot to say anything 
+    // using the say command. 
+    // Written by : sarp */ 
     if (command === "say")
     {
         const member = message;
@@ -518,55 +523,10 @@ client.on("message", async message =>
         }
     }
 
-    /*
-    if (command === "help")
-    {
-        const helpEmbed = {
-        "title": `🤖 - Bot Help`,
-        "description": "Prefix: `$`",
-        "color": 0x00FFFF,
-        "fields": [
-            {
-                "name": `Ping`,
-                "value": `You can use the ping command to see the delay between your message and the bot.\nUsage example: \`$ping\``
-            },
-            {
-                "name": `Purge`,
-                "value": `Community moderators and higher users can use the purge command to bulk delete messages that the command ran at.\nUsage example: \`$purge (amount)\``
-            },
-            {
-                "name": `Socials`,
-                "value": `*not implemented yet*\nYou can use the socials command to see the social media accounts of zyapguy.\nUsage example: \`$socials\``
-            },
-            {
-                "name": `Poll`,
-                "value": `You can use the poll command to make a new poll with 2 answers if you are a helper or hirgher.\nUsage example: \`$poll your question, answer 1, answer 2\``
-            },
-            {
-                "name": `Say`,
-                "value": `*not implemented yet*`
-            },
-            {
-                "name": `Kick`,
-                "value": `You can use the kick command to kick users from the server if you are a community moderator or higher.\nUsage example: \`$kick @user\``
-            },
-            {
-                "name": `Ban`,
-                "value": `You can use the ban command to ban users from the server if you are a moderator or higher.\nUsage example: \`$ban @user (reason)\``
-            },
-            {
-                "name": `Unban`,
-                "value": `You can use the unban command to unban users that were banned before if you are a moderator or higher.\nUsage example: \`$unban userid\`\n **IF YOU PING THE USER INSTEAD OF WRITING THE USER ID, THE BOT WILL CRASH!**`
-            }
-            ],
-            "footer": {
-                "text": `Made by Beriff#3224, zyapguy#0320 and sarp#2063`
-            }
-        };
-        message.channel.send({embeds: [helpEmbed]});
-    }
-    */
-
+    /* Help (help)
+    // Anyone can use this command to list 
+    // all the commands of the bot. (except silentban)
+    // Written by : sarp */ 
     if (command === "help")
     {
         const embed1 = new MessageEmbed()
@@ -729,6 +689,10 @@ client.on("message", async message =>
         }
     }
 
+    /* Countdown (countdown)
+    // If you are a community moderator or higher, 
+    // you can use this command to make countdowns.
+    // Written by : zelta */ 
     if (command === "countdown")
     {
         if (checkPermissions(message, ["Mod", "SrMod", "Admin", "zyapguy", "CmMod"]))
@@ -756,6 +720,11 @@ client.on("message", async message =>
         }
     }
 
+    /* Shutdown (shutdown)
+    // If you are a moderator or higher, 
+    // you can use the shutdown command to shut the
+    // bot down in emergency situations.
+    // Written by : sarp */ 
     if (command === "shutdown")
     {
         let confirmContent = message.content.slice(10);
