@@ -18,8 +18,10 @@ Nightly 26/09/2021
 
 
 
-const nightly = true; // Change to false if build is NOT nightly
+const nightly = false; // Change to false if build is NOT nightly
 const experimental = true;
+
+let doLogging = true;
 
 
 
@@ -36,7 +38,7 @@ let logsChannel = '883785241716731954';
 const nightlyLogsChannel = '891641354034245693';
 const sarpSupportTag = `<@426410106565951519>`;
 const zyapSupportTag = `<@291592918592913408>`;
-const prefix = "$";
+const prefix = "n$";
 const delay = (msec) => new Promise((resolve) => setTimeout(resolve, msec));
 const roleDictionary = {
     Helper: "Helper",
@@ -45,6 +47,15 @@ const roleDictionary = {
     SrMod: "Senior Moderator",
     zyapguy: "zyapguy",
     Admin: "Admin"
+};
+
+const purgeDictionary = {
+    Helper: 5,
+    CmMod: 10,
+    Mod: 25,
+    SrMod: 100,
+    zyapguy: 100,
+    Admin: 100
 };
 
 function getTime() {
@@ -77,13 +88,16 @@ function getTime() {
 // into a channel and into a text file
 // Written by : zyapguy */
 function log(log, logtype) {
-    client.channels.cache.get(logsChannel).send("[" + logtype + " " + getTime() + "] " + log);
-    const toLog = "[" + logtype + " " + getTime() + "] " + log + "\n";
+    if (doLogging) {
+        client.channels.cache.get(logsChannel).send("[" + logtype + " " + getTime() + "] " + log);
+        const toLog = "[" + logtype + " " + getTime() + "] " + log + "\n";
 
-    fs.appendFile('logs.txt', toLog, function (err) {
-        if (err) throw err;
-        //console.log('');
-    });
+        fs.appendFile('logs.txt', toLog, function (err) {
+            if (err) throw err;
+            //console.log('');
+        });
+    }
+
 }
 function checkPermissions(message, array) {
     const role = roleToString(message.member);
@@ -146,6 +160,13 @@ function roleToString(member) {
     }*/
 }
 function purgeAuthorityValues(role) {
+    for (var purge in purgeDictionary) {
+        if (role == purge) {
+            return purgeDictionary[purge];
+        }
+    }
+    return 0;
+    /*
     if (role == "Admin") {
         return 100;
     }
@@ -163,7 +184,7 @@ function purgeAuthorityValues(role) {
     }
     if (role == "Helper") {
         return 5;
-    }
+    }*/
 }
 function clamp(num, min, max) {
     return num <= min
@@ -279,8 +300,7 @@ client.on("message", async message => {
                 .catch()
             log("<@" + message.author.id + ">" + "has purged " + clampToRole(message, amount) + " messages", "PURGE");
         }
-        else
-        {
+        else {
             message.channel.send("<@" + message.author.id + ">" + `, you don't have the right permissions to use this command.`);
         }
 
@@ -321,6 +341,25 @@ client.on("message", async message => {
                             message.channel.send(`An unexpected error has occured. Please notify ${sarpSupportTag} and ${zyapSupportTag} about this.`);
                         })
                 })
+        }
+        else {
+            message.channel.send("<@" + message.author.id + ">" + `, you don't have the right permissions to use this command.`);
+        }
+    }
+
+    if (command === "settings") {
+        if (checkPermissions(message, ["Mod", "SrMod", "Admin", "zyapguy"])) {
+            if (message.content.split(" ")[1] == "log_on") {
+                message.channel.send("<@" + message.author.id + ">" + `, The bot will now log things`);
+                doLogging = true;
+            }
+            else if (message.content.split(" ")[1] == "log_off") {
+                message.channel.send("<@" + message.author.id + ">" + `, The bot will NOT log things`);
+                doLogging = false;
+            }
+            else {
+                message.channel.send("<@" + message.author.id + ">" + `, that is not a setting! Check docs!`);
+            }
         }
         else {
             message.channel.send("<@" + message.author.id + ">" + `, you don't have the right permissions to use this command.`);
@@ -741,11 +780,5 @@ client.on("message", async message => {
         }
     }
 });
-
-
-
-
-
-
 
 client.login(token);

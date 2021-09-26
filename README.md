@@ -8,6 +8,13 @@ Zyapbot is a Discord bot made with node.js.
 Nightly means that the features that are added have not been tested a lot and might cause interesting results.
 It is not recommended to use this in a production environment.
 
+Some features are untested and might lead to 
+
+## Nightly Features
+
+- Add roles with ease
+- Change purge values with ease
+
 ## Features
 
 - Ban, Silentban, Unban, Kick users
