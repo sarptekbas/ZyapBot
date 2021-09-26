@@ -780,3 +780,7 @@ client.on("message", async message =>
 });
 
 client.login(token);
+
+process.on('uncaughtException', function(err) {
+    log('Caught exception: ' + err);
+});
