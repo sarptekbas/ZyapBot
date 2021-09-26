@@ -6,8 +6,6 @@ by Sarp and Zyapguy
 
 Started 04/09/2021
 v1.0 - 
-
-
 */
 
 // Dependencies and requirememts
@@ -26,7 +24,7 @@ const logsChannel = '891641354034245693';
 const sarpSupportTag = `<@426410106565951519>`;
 const zyapSupportTag = `<@291592918592913408>`;
 
-const delay = (msec) => new Promise((resolve) => setTimeout(resolve, msec));
+// const delay = (msec) => new Promise((resolve) => setTimeout(resolve, msec)); not used anymore
 
 function getTime()
 {
