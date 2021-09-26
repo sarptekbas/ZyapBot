@@ -26,7 +26,7 @@ And of course ZyapBot itself is open source with a [public repository][dill] on 
 
 ZyapBot requires [Node.js](https://nodejs.org/) v16+ to run.
 
-Install the dependencies and devDependencies and start the server.
+Install the dependencies and start the server.
 
 ```sh
 cd ZyapBot
