@@ -1,33 +1,47 @@
 /*
-
 ZyapBot ReWrite
 --------------------
 by Sarp and Zyapguy
-
 Started 04/09/2021
 v1.0 - 
 */
+
+const nightly = false; // Change to false if build is NOT nightly
+const canary = true;
+const experimental = true;
 
 // Dependencies and requirememts
 const { Client, Intents, ThreadMemberManager } = require('discord.js');
 const Discord = require('discord.js');
 const { MessageButton, MessageEmbed } = require('discord.js');
 const paginationEmbed = require('discordjs-button-pagination');
+
 require('dotenv').config();
 var token = process.env.TOKEN;
 
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
 const fs = require('fs');
 
-const logsChannel = '891641354034245693';
+let logsChannel = '883785241716731954';
+const nightlyLogsChannel = '891641354034245693';
 
 const sarpSupportTag = `<@426410106565951519>`;
 const zyapSupportTag = `<@291592918592913408>`;
 
-// const delay = (msec) => new Promise((resolve) => setTimeout(resolve, msec)); not used anymore
+const prefix = "$";
 
-function getTime()
-{
+//const delay = (msec) => new Promise((resolve) => setTimeout(resolve, msec));
+
+const roleDictionary = {
+    Helper: "Helper",
+    CmMod: "Community Moderator",
+    Mod: "Moderator",
+    SrMod: "Senior Moderator",
+    zyapguy: "zyapguy",
+    Admin: "Admin"
+};
+
+function getTime() {
     let date_ob = new Date();
 
     // current date
@@ -55,39 +69,22 @@ function getTime()
 /* log(log)
 // The log function is a function that will log admin actions
 // into a channel and into a text file
-// Written by : zyapguy */ 
-function log(log)
-{
-    client.channels.cache.get(logsChannel).send("[LOG " + getTime() + "] " + log);
-    const toLog = "[LOG " + getTime() + "] " + log + "\n";
+// Written by : zyapguy */
+function log(log, logtype) {
+    client.channels.cache.get(logsChannel).send("[" + logtype + " " + getTime() + "] " + log);
+    const toLog = "[" + logtype + " " + getTime() + "] " + log + "\n";
 
-    fs.appendFile('logs.txt', toLog, function (err) 
-    {
+    fs.appendFile('logs.txt', toLog, function (err) {
         if (err) throw err;
-        console.log('Saved!');
+        //console.log('');
     });
 }
 
-function delLog(log)
-{
-    client.channels.cache.get(logsChannel).send("[DELETION " + getTime() + "] " + log);
-    const toLog = "[MESSAGE DELETED " + getTime() + "] " + log + "\n";
-
-    fs.appendFile('logs.txt', toLog, function (err) 
-    {
-        if (err) throw err;
-        console.log('Saved!');
-    });
-}
-
-function checkPermissions(message, array)
-{
+function checkPermissions(message, array) {
     const role = roleToString(message.member);
 
-    for (let i = 0; i < array.length; i++)
-    {
-        if (role == array[i])
-        {
+    for (let i = 0; i < array.length; i++) {
+        if (role == array[i]) {
             return true;
         }
     }
@@ -105,106 +102,89 @@ else
 {
     message
 }
-
 */
-function roleToString(member)
-{
-    if (member.roles.cache.find(r => r.name === "Admin"))
-    {
-        return "Admin";
+
+function roleToString(member) {
+    for (var role in roleDictionary) {
+        if (member.roles.cache.find(r => r.name === roleDictionary[role])) {
+            console.log(role)
+            return role;
+        }
     }
-    if (member.roles.cache.find(r => r.name === "zyapguy"))
-    {
-        return "zyapguy";
-    }
-    if (member.roles.cache.find(r => r.name === "Senior Moderator"))
-    {
-        return "SrMod";
-    }
-    if (member.roles.cache.find(r => r.name === "Moderator"))
-    {
-        return "Mod";
-    }
-    if (member.roles.cache.find(r => r.name === "Community Moderator"))
-    {
-        return "CmMod";
-    }
-    if (member.roles.cache.find(r => r.name === "Helper"))
-    {
-        return "Helper";
-    }
-    else {
-        return "User";
-    }
+    return "user";
 }
 
-function purgeAuthorityValues(role)
-{
-    if (role == "Admin")
-    {
+function purgeAuthorityValues(role) {
+    if (role == "Admin") {
         return 100;
     }
-    if (role == "zyapguy")
-    {
+    if (role == "zyapguy") {
         return 100;
     }
-    if (role == "SrMod")
-    {
+    if (role == "SrMod") {
         return 100;
     }
-    if (role == "Mod")
-    {
+    if (role == "Mod") {
         return 25;
     }
-    if (role == "CmMod")
-    {
+    if (role == "CmMod") {
         return 10;
     }
-    if (role == "Helper")
-    {
+    if (role == "Helper") {
         return 5;
     }
 }
 
-function clamp(num, min, max) 
-{
-    return num <= min 
-      ? min 
-      : num >= max 
-        ? max 
-        : num
-  }
+function clamp(num, min, max) {
+    return num <= min
+        ? min
+        : num >= max
+            ? max
+            : num
+}
 
-function clampToRole(message, value)
-{
+function clampToRole(message, value) {
     let role = roleToString(message.member);
     //console.log(role);
     let val = purgeAuthorityValues(role);
     let clamped = clamp(value, 1, val);
 
-    if (value > val)
-    {
+    if (value > val) {
         message.reply(role + " can only purge " + val + " messages!");
     }
     return clamped;
 }
 
-const prefix = "$";
-
 client.on('ready',()=>
 {
-    //log("ZyapBot MK2 Started.");
-	client.user.setActivity("you", { type: 'WATCHING'});
-    //client.channels.cache.get(`867441128725807105`).send(".");
+    if (nightly) 
+    {
+        logsChannel = nightlyLogsChannel;
+    }
+    else if (canary)
+    {
+        logsChannel = nightlyLogsChannel;
+    }
+
+    let res = (1 > 3) ? "is greater" : "is less than";
+    let build_state = !nightly ? "build" : "nightly";
+    build_state = !canary ? "build" : "canary";
+    let experimental_state = !experimental ? "disabled" : "enabled";
+
+    console.log("zyapbot running version " + build_state + " with experimental features " + experimental_state);
+
+
+    client.user.setActivity("you", { type: 'WATCHING' });
 });
 
-client.on("messageDelete", message => {
+client.on("messageDelete", message => 
+{
     if(!message.partial)
     {
         if(logsChannel)
         {
             client.channels.cache.get(logsChannel).send(message.author.tag + " deleted " + message.content + " at " + message.channel.name + " channel");
-            delLog(message.author.tag + ` deleted message "` + message.content + `" at "` + message.channel.name + `" channel`);
+            log(message.author.tag + ` deleted message "` + message.content + `" at "` + message.channel.name + `" channel`, "DELETION");
         }
     }
 });
@@ -267,21 +247,28 @@ client.on("message", async message =>
     // Written by : sarp and zyapguy*/ 
     if (command === "purge")
     {
-        const member = message;
-        //clampToRole(member, 100)
-        const amount = message.content.split(" ")[1];
-        
-        if(!amount || amount == "all")
+        if (checkPermissions(message, ["Mod", "SrMod", "Admin", "zyapguy", "CmMod"])) 
         {
-            message.reply(`Please write the amount you want to purge.`);
-            return;
+            const member = message;
+            //clampToRole(member, 100)
+            const amount = message.content.split(" ")[1];
+
+            if (!amount || amount == "all") {
+                message.reply(`Please write the amount you want to purge.`);
+                return;
+            }
+            message.channel.bulkDelete(clampToRole(message, amount))
+                .then(messages => message.channel.send(`Bulk deleted ${messages.size} messages.`))
+                .then(msg => {
+                    setTimeout(() => msg.delete(), 3000)
+                })
+                .catch()
+            log("<@" + message.author.id + ">" + "has purged " + clampToRole(message, amount) + " messages", "PURGE");
         }
-        message.channel.bulkDelete(clampToRole(message, amount))
-        .then(messages => message.channel.send(`Bulk deleted ${messages.size} messages.`))
-        .then(msg => {setTimeout(() => msg.delete(), 3000)
-        })
-       .catch()
-        log("<@" + message.author.id + ">" + "has purged " + clampToRole(message, amount) + " messages")
+        else
+        {
+            message.channel.send("<@" + message.author.id + ">" + `, you don't have the right permissions to use this command.`);
+        }
     }
     
 
