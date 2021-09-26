@@ -761,7 +761,8 @@ client.on("message", async message =>
         let confirmContent = message.content.slice(10);
         console.log(confirmContent);
 
-        if (checkPermissions(message, ["Mod", "SrMod", "Admin", "zyapguy", "CmMod"]))
+        // Removed community mod
+        if (checkPermissions(message, ["Mod", "SrMod", "Admin", "zyapguy"]))
         {
             if (confirmContent == "yes")
             {
