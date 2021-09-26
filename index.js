@@ -203,7 +203,7 @@ client.on("messageDelete", message => {
     {
         if(logsChannel)
         {
-            //client.channels.cache.get(logsChannel).send(message.author.tag + " deleted " + message.content + " at " + message.channel.name + " channel");
+            client.channels.cache.get(logsChannel).send(message.author.tag + " deleted " + message.content + " at " + message.channel.name + " channel");
             delLog(message.author.tag + ` deleted message "` + message.content + `" at "` + message.channel.name + `" channel`);
         }
     }
