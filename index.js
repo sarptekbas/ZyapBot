@@ -365,6 +365,7 @@ client.on("message", async message =>
     // If you just @ the user that was banned
     // THE BOT WILL CRASH!
     // ----------------------------- 
+    // FIXME: Fix the problem with pinging the user.
     if (command === "unban" )
     {
         const {member, mentions} = message;
@@ -473,6 +474,7 @@ client.on("message", async message =>
         }
     }
   
+    //TODO: add functionality to detect @'s
     if (command === "say")
     {
         const member = message;
@@ -502,55 +504,6 @@ client.on("message", async message =>
             client.channels.cache.get('867441128725807105').send(body);
         }
     }
-
-    /*
-    if (command === "help")
-    {
-        const helpEmbed = {
-        "title": `🤖 - Bot Help`,
-        "description": "Prefix: `$`",
-        "color": 0x00FFFF,
-        "fields": [
-            {
-                "name": `Ping`,
-                "value": `You can use the ping command to see the delay between your message and the bot.\nUsage example: \`$ping\``
-            },
-            {
-                "name": `Purge`,
-                "value": `Community moderators and higher users can use the purge command to bulk delete messages that the command ran at.\nUsage example: \`$purge (amount)\``
-            },
-            {
-                "name": `Socials`,
-                "value": `*not implemented yet*\nYou can use the socials command to see the social media accounts of zyapguy.\nUsage example: \`$socials\``
-            },
-            {
-                "name": `Poll`,
-                "value": `You can use the poll command to make a new poll with 2 answers if you are a helper or hirgher.\nUsage example: \`$poll your question, answer 1, answer 2\``
-            },
-            {
-                "name": `Say`,
-                "value": `*not implemented yet*`
-            },
-            {
-                "name": `Kick`,
-                "value": `You can use the kick command to kick users from the server if you are a community moderator or higher.\nUsage example: \`$kick @user\``
-            },
-            {
-                "name": `Ban`,
-                "value": `You can use the ban command to ban users from the server if you are a moderator or higher.\nUsage example: \`$ban @user (reason)\``
-            },
-            {
-                "name": `Unban`,
-                "value": `You can use the unban command to unban users that were banned before if you are a moderator or higher.\nUsage example: \`$unban userid\`\n **IF YOU PING THE USER INSTEAD OF WRITING THE USER ID, THE BOT WILL CRASH!**`
-            }
-            ],
-            "footer": {
-                "text": `Made by zyapguy#0320 and sarp#2063`
-            }
-        };
-        message.channel.send({embeds: [helpEmbed]});
-    }
-    */
 
     if (command === "help")
     {
