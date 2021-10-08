@@ -596,9 +596,6 @@ client.on("message", async message =>
             .then(() => {
                 message.channel.send(`The role has been given to ${targetMember} successfully.`);
             })
-            .catch(() => {
-                message.channel.send(`Are you sure that you wrote the user or the role right?`);
-            });
         }
 		else
         {
@@ -644,6 +641,7 @@ client.on("message", async message =>
         });
     }
 
+    //TODO: add funtionaly to userinfo with ids.
     if (command === "userinfo")
     {
         if (checkPermissions(message, ["Mod", "SrMod", "Admin", "zyapguy", "CmMod"])) 
@@ -667,6 +665,7 @@ client.on("message", async message =>
         }
     }
 
+    //TODO: change response messages.
     if (command === "countdown")
     {
         if (checkPermissions(message, ["Mod", "SrMod", "Admin", "zyapguy", "CmMod"]))
