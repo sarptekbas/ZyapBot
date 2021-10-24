@@ -1,11 +1,11 @@
-# ZyapBot Nightly
-## _Beta builds of zyapbot made for zyapguy's server_
+# ZyapBot Canary
+## _Alpha builds of zyapbot made for zyapguy's server_
 
 Zyapbot is a Discord bot made with node.js.
 
-## Nightly
+## Canary
 
-Nightly means that the features that are added have not been tested a lot and might cause interesting results.
+Canary means that the features that are added have not been tested a lot and might cause interesting results.
 It is not recommended to use this in a production environment.
 
 ## Features
