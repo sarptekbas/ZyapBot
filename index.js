@@ -696,7 +696,7 @@ const commands = {
     {
         message.channel.bulkDelete(1)
         .then(() => {
-            message.channel.send('💩 poopoo');
+            message.channel.send('💩');
         });
     },
 
