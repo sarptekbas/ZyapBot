@@ -18,33 +18,12 @@ const paginationEmbed = require('discordjs-button-pagination');
 const parser = require('./assets/parser.js')
 
 require('dotenv').config();
-var token = process.env.TOKEN;
+const token = process.env.TOKEN;
 
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
 const fs = require('fs');
 
-const logsChannel = '883785241716731954';
-
-const sarpSupportTag = `<@426410106565951519>`;
-const zyapSupportTag = `<@291592918592913408>`;
-
-const roleDictionary = {
-    Helper: "Helper",
-    CmMod: "Community Moderator",
-    Mod: "Moderator",
-    SrMod: "Senior Moderator",
-    zyapguy: "zyapguy",
-    Admin: "Admin"
-};
-
-const purgeDictionary = {
-    Helper: 5,
-    CmMod: 10,
-    Mod: 25,
-    SrMod: 100,
-    zyapguy: 100,
-    Admin: 100
-};
+const config = require('./config.json');
 
 const delay = (msec) => new Promise((resolve) => setTimeout(resolve, msec));
 
@@ -86,7 +65,7 @@ function getTime()
  */
 function log(log)
 {
-    client.channels.cache.get(logsChannel).send("[LOG " + getTime() + "] " + log);
+    client.channels.cache.get(config.ids.channel.logs).send("[LOG " + getTime() + "] " + log);
     const toLog = "[LOG " + getTime() + "] " + log + "\n";
 
     fs.appendFile('logs.txt', toLog, function (err) {
@@ -102,7 +81,7 @@ function log(log)
  */
 function delLog(log)
 {
-    client.channels.cache.get(logsChannel).send("[DELETION " + getTime() + "] " + log);
+    client.channels.cache.get(config.ids.channel.logs).send("[DELETION " + getTime() + "] " + log);
     const toLog = "[MESSAGE DELETED " + getTime() + "] " + log + "\n";
 
     fs.appendFile('logs.txt', toLog, function (err) {
@@ -148,8 +127,8 @@ else
  * @returns role to string
  */
  function roleToString(member) {
-    for (var role in roleDictionary) {
-        if (member.roles.cache.find(r => r.name === roleDictionary[role])) {
+    for (var role in config.dictionary.role) {
+        if (member.roles.cache.find(r => r.name === config.dictionary.role[role])) {
             console.log(role)
             return role;
         }
@@ -162,9 +141,9 @@ else
  * @returns purge authority value of role
  */
  function purgeAuthorityValues(role) {
-    for (var purge in purgeDictionary) {
+    for (var purge in config.dictionary.purge) {
         if (role == purge) {
-            return purgeDictionary[purge];
+            return config.dictionary.purge[purge];
         }
     }
     return 0;
@@ -204,8 +183,7 @@ function clampToRole(message, value)
     return clamped;
 }
 
-const prefix = "$";
-const cmdParser = new parser.commandParser(prefix);
+const cmdParser = new parser.commandParser(config.prefix);
 
 client.on('ready',()=>
 {
@@ -216,7 +194,7 @@ client.on('ready',()=>
 
 client.on("messageDelete", message => {
     if (!message.partial) {
-        if (logsChannel) {
+        if (config.ids.channel.logs) {
             delLog(message.author.tag + ` deleted message "` + message.content + `" at "` + message.channel.name + `" channel`);
         }
     }
@@ -318,7 +296,7 @@ const commands = {
                         log(memberThatIsGoingToBeBannedTag + " has been banned by " + "<@" + message.author.id + ">"  + " for " + reasonWithoutID);
                     })
                     .catch(() => {
-                        message.channel.send(`An unexpected error has occured. Please notify ${sarpSupportTag} and ${zyapSupportTag} about this.`);
+                        message.channel.send(`An unexpected error has occured. Please notify ${config.ids.suppport.sarp} and ${config.ids.suppport.zyap} about this.`);
                     })
                 })
             }
@@ -390,7 +368,7 @@ const commands = {
                 })
 
                 .catch(() => {
-                    message.channel.send(`An unexpected error has occured. Please notify ${sarpSupportTag} and ${zyapSupportTag} about this.`);
+                    message.channel.send(`An unexpected error has occured. Please notify ${config.ids.suppport.sarp} and ${config.ids.suppport.zyap} about this.`);
                 })
 
             if (memberThatIsGoingToBeUnbanned.length < 18 || memberThatIsGoingToBeUnbanned.length > 18) {
@@ -427,7 +405,7 @@ const commands = {
                             log(memberThatIsGoingToBeKickedTag + " has been kicked by " + "<@" + message.author.id + ">");
                         })
                         .catch(() => {
-                            message.channel.send(`An unexpected error has occured. Please notify ${sarpSupportTag} and ${zyapSupportTag} about this.`);
+                            message.channel.send(`An unexpected error has occured. Please notify ${config.ids.suppport.sarp} and ${config.ids.suppport.zyap} about this.`);
                         })
                 })
         }
@@ -690,7 +668,7 @@ const commands = {
 client.on("message", async message => 
 {
     if (message.author.bot) return;
-    if (!message.content.startsWith(prefix)) return;
+    if (!message.content.startsWith(config.prefix)) return;
     
     var parsed = cmdParser.parse(message.content);
     if (parsed.name in commands)
