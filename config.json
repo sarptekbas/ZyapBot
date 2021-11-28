@@ -1,5 +1,10 @@
 {
     "prefix": "$",
+    "color": {
+        "main": "#00FFFF",
+        "problem": "#FF0000",
+        "info": "#FFD700"
+    },
     "ids": {
         "channel": {
             "logs": "883785241716731954"

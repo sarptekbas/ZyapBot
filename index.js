@@ -208,7 +208,7 @@ const commands = {
             "type": "rich",
             "title": `Pong! 🏓`,
             "description": "",
-            "color": 0x00FFFF,
+            "color": config.color.main,
             "fields": [
                 {
                     "name": `Latency`,
@@ -286,7 +286,7 @@ const commands = {
                 
                 if(!reason) reason = 'Unspecified';
                 
-                const embed = new MessageEmbed().setTitle("Banned!").setColor('#ff0000').setDescription(`You have been banned from zyapguy's server for ${reasonWithoutID}.`)   
+                const embed = new MessageEmbed().setTitle("Banned!").setColor(config.color.problem).setDescription(`You have been banned from zyapguy's server for ${reasonWithoutID}.`)   
 
                 targetMember.send({ embeds: [embed] })
                 .then(() => {
@@ -395,7 +395,7 @@ const commands = {
 
             if (!target) return message.channel.send("<@" + message.author.id + ">" + `, please specify someone to kick.`);
 
-            const embed = new MessageEmbed().setTitle("Kicked!").setColor('#ff0000').setDescription(`You have been kicked from zyapguy's server.`)
+            const embed = new MessageEmbed().setTitle("Kicked!").setColor(config.color.problem).setDescription(`You have been kicked from zyapguy's server.`)
 
             targetMember.send({ embeds: [embed] })
                 .then(() => {
@@ -472,7 +472,7 @@ const commands = {
         const embed1 = new MessageEmbed()
             .setTitle('🤖 - Bot Help')
             .setDescription('Prefix: `$`')
-            .setColor(0x00FFFF)
+            .setColor(config.color.main)
             .setFields(
                 {
                     "name": `Ping`,
@@ -499,7 +499,7 @@ const commands = {
         const embed2 = new MessageEmbed()
             .setTitle('🤖 - Bot Help')
             .setDescription('Prefix: `$`')
-            .setColor(0x00FFFF)
+            .setColor(config.color.main)
             .setFields(
                 {
                     "name": `Kick`,
@@ -606,7 +606,7 @@ const commands = {
             let target1 = message.mentions.members.first() || await message.guild.members.fetch(args[0]);
 
             const embed = new Discord.MessageEmbed()
-                .setColor('#FFD700')
+                .setColor(config.color.info)
                 .setTitle(`Info for ${target.tag}`)
                 .setDescription(`
                     Account Created At: ${target.createdAt.toLocaleString()}
