@@ -140,32 +140,13 @@ function roleToString(member)
     }
 }
 
-function purgeAuthorityValues(role)
-{
-    if (role == "Admin")
-    {
-        return 100;
-    }
-    if (role == "zyapguy")
-    {
-        return 100;
-    }
-    if (role == "SrMod")
-    {
-        return 100;
-    }
-    if (role == "Mod")
-    {
-        return 25;
-    }
-    if (role == "CmMod")
-    {
-        return 10;
-    }
-    if (role == "Helper")
-    {
-        return 5;
-    }
+const purgeAuthorityValues = {
+    "Admin": 100,
+    "zyapguy": 100,
+    "SrMod": 100,
+    "Mod": 25,
+    "CmMod": 10,
+    "Helper": 5
 }
 
 function clamp(num, min, max) 
@@ -181,7 +162,7 @@ function clampToRole(message, value)
 {
     let role = roleToString(message.member);
     //console.log(role);
-    let val = purgeAuthorityValues(role);
+    let val = purgeAuthorityValues[role];
     let clamped = clamp(value, 1, val);
 
     if (value > val)
