@@ -85,7 +85,6 @@ function checkPermissions(message, array) {
             return true;
         }
     }
-    //message.reply("You do not have permission to run that command!");
     return false;
 }
 
@@ -144,7 +143,6 @@ function clamp(num, min, max) {
 
 function clampToRole(message, value) {
     let role = roleToString(message.member);
-    //console.log(role);
     let val = purgeAuthorityValues[role];
     let clamped = clamp(value, 1, val);
 
@@ -157,15 +155,12 @@ function clampToRole(message, value) {
 const prefix = "$";
 
 client.on('ready', () => {
-    //log("ZyapBot MK2 Started.");
     client.user.setActivity("you", { type: 'WATCHING' });
-    //client.channels.cache.get(`867441128725807105`).send(".");
 });
 
 client.on("messageDelete", message => {
     if (!message.partial) {
         if (logsChannel) {
-            //client.channels.cache.get(logsChannel).send(message.author.tag + " deleted " + message.content + " at " + message.channel.name + " channel");
             delLog(message.author.tag + ` deleted message "` + message.content + `" at "` + message.channel.name + `" channel`);
         }
     }
@@ -178,8 +173,6 @@ client.on("message", async message => {
     const commandBody = message.content.slice(prefix.length);
     const args = commandBody.split(" ");
     const command = args.shift().toLowerCase();
-
-    //if (!interaction.isCommand()) return;
 
     if (command === "ping") {
         const timeTaken = Date.now() - message.createdTimestamp;
@@ -205,10 +198,7 @@ client.on("message", async message => {
                 "text": `Made by zyapguy and sarp.`
             }
         }
-        //message.channel.send(`Pong! This message had a latency of ${timeTaken}ms.`);
-        //message.channel.send(`Pong! The bot's latency to the API is ${apiLatency}ms.`)
         message.channel.send({ embeds: [pingEmbed] });
-        //message.reply(`Ping command is deprecated!`);
     }
 
     if (command === "log") {
@@ -417,10 +407,6 @@ client.on("message", async message => {
                     await msgEmbed.react('✅');
                     await msgEmbed.react('❌');
                 });
-
-            //let msgEmbed = await message.channel.send({embeds: [embedPoll]});
-            //await msgEmbed.react('✅');
-            //await msgEmbed.react('❌');
         }
         else {
             message.channel.send("<@" + message.author.id + ">" + `, you don't have the right permissions to use this command.`);
@@ -452,55 +438,6 @@ client.on("message", async message => {
         }
     }
 
-    /*
-    if (command === "help")
-    {
-        const helpEmbed = {
-        "title": `🤖 - Bot Help`,
-        "description": "Prefix: `$`",
-        "color": 0x00FFFF,
-        "fields": [
-            {
-                "name": `Ping`,
-                "value": `You can use the ping command to see the delay between your message and the bot.\nUsage example: \`$ping\``
-            },
-            {
-                "name": `Purge`,
-                "value": `Community moderators and higher users can use the purge command to bulk delete messages that the command ran at.\nUsage example: \`$purge (amount)\``
-            },
-            {
-                "name": `Socials`,
-                "value": `*not implemented yet*\nYou can use the socials command to see the social media accounts of zyapguy.\nUsage example: \`$socials\``
-            },
-            {
-                "name": `Poll`,
-                "value": `You can use the poll command to make a new poll with 2 answers if you are a helper or hirgher.\nUsage example: \`$poll your question, answer 1, answer 2\``
-            },
-            {
-                "name": `Say`,
-                "value": `*not implemented yet*`
-            },
-            {
-                "name": `Kick`,
-                "value": `You can use the kick command to kick users from the server if you are a community moderator or higher.\nUsage example: \`$kick @user\``
-            },
-            {
-                "name": `Ban`,
-                "value": `You can use the ban command to ban users from the server if you are a moderator or higher.\nUsage example: \`$ban @user (reason)\``
-            },
-            {
-                "name": `Unban`,
-                "value": `You can use the unban command to unban users that were banned before if you are a moderator or higher.\nUsage example: \`$unban userid\`\n **IF YOU PING THE USER INSTEAD OF WRITING THE USER ID, THE BOT WILL CRASH!**`
-            }
-            ],
-            "footer": {
-                "text": `Made by Beriff#3224, zyapguy#0320 and sarp#2063`
-            }
-        };
-        message.channel.send({embeds: [helpEmbed]});
-    }
-    */
-
     if (command === "help") {
         const embed1 = new MessageEmbed()
             .setTitle('🤖 - Bot Help')
@@ -528,7 +465,6 @@ client.on("message", async message => {
                     "value": `*not implemented yet*`
                 }
             );
-
 
         const embed2 = new MessageEmbed()
             .setTitle('🤖 - Bot Help')
