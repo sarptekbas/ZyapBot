@@ -135,19 +135,6 @@ else
     }
     return "user";
 }
-/**
- * 
- * @param {*} role 
- * @returns purge authority value of role
- */
- function purgeAuthorityValues(role) {
-    for (var purge in config.dictionary.purge) {
-        if (role == purge) {
-            return config.dictionary.purge[purge];
-        }
-    }
-    return 0;
-}
 
 /**
  * 
@@ -174,7 +161,7 @@ function clamp(num, min, max)
 function clampToRole(message, value)
 {
     let role = roleToString(message.member);
-    let val = purgeAuthorityValues[role];
+    let val = config.dictionary.purge[role] || undefined;
     let clamped = clamp(value, 1, val);
 
     if (value > val) {
