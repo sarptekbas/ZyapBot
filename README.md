@@ -7,7 +7,7 @@ Zyapbot is a Discord bot made with node.js. (If you want to work on the bot, clo
 
 - Ban, Silentban, Unban, Kick users
 - Purge messages
-- Make polls, List social media accounts
+- Make polls, List social media accounts (not implemented yet, but if you do implement it it would be awesome!)
 - Add roles, remove roles
 - User info
 
