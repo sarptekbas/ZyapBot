@@ -1,0 +1,35 @@
+{
+    "prefix": "$",
+    "color": {
+        "main": "#00FFFF",
+        "problem": "#FF0000",
+        "info": "#FFD700"
+    },
+    "ids": {
+        "channel": {
+            "logs": "883785241716731954"
+        },
+        "suppport": {
+            "sarp": "<@426410106565951519>",
+            "zyap": "<@291592918592913408>"
+        }
+    },
+    "dictionary": {
+        "role": {
+            "Helper": "Helper",
+            "CmMod": "Community Moderator",
+            "Mod": "Moderator",
+            "SrMod": "Senior Moderator",
+            "zyapguy": "zyapguy",
+            "Admin": "Admin"
+        },
+        "purge": {
+            "Helper": 5,
+            "CmMod": 10,
+            "Mod": 25,
+            "SrMod": 100,
+            "zyapguy": 100,
+            "Admin": 100
+        }
+    }
+}

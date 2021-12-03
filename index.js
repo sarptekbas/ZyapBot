@@ -18,33 +18,12 @@ const paginationEmbed = require('discordjs-button-pagination');
 const parser = require('./assets/parser.js')
 
 require('dotenv').config();
-var token = process.env.TOKEN;
+const token = process.env.TOKEN;
 
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
 const fs = require('fs');
 
-const logsChannel = '883785241716731954';
-
-const sarpSupportTag = `<@426410106565951519>`;
-const zyapSupportTag = `<@291592918592913408>`;
-
-const roleDictionary = {
-    Helper: "Helper",
-    CmMod: "Community Moderator",
-    Mod: "Moderator",
-    SrMod: "Senior Moderator",
-    zyapguy: "zyapguy",
-    Admin: "Admin"
-};
-
-const purgeDictionary = {
-    Helper: 5,
-    CmMod: 10,
-    Mod: 25,
-    SrMod: 100,
-    zyapguy: 100,
-    Admin: 100
-};
+const config = require('./config.json');
 
 const delay = (msec) => new Promise((resolve) => setTimeout(resolve, msec));
 
@@ -86,11 +65,10 @@ function getTime()
  */
 function log(log)
 {
-    client.channels.cache.get(logsChannel).send("[LOG " + getTime() + "] " + log);
+    client.channels.cache.get(config.ids.channel.logs).send("[LOG " + getTime() + "] " + log);
     const toLog = "[LOG " + getTime() + "] " + log + "\n";
 
-    fs.appendFile('logs.txt', toLog, function (err) 
-    {
+    fs.appendFile('logs.txt', toLog, function (err) {
         if (err) throw err;
         console.log('Saved!');
     });
@@ -103,11 +81,10 @@ function log(log)
  */
 function delLog(log)
 {
-    client.channels.cache.get(logsChannel).send("[DELETION " + getTime() + "] " + log);
+    client.channels.cache.get(config.ids.channel.logs).send("[DELETION " + getTime() + "] " + log);
     const toLog = "[MESSAGE DELETED " + getTime() + "] " + log + "\n";
 
-    fs.appendFile('logs.txt', toLog, function (err) 
-    {
+    fs.appendFile('logs.txt', toLog, function (err) {
         if (err) throw err;
         console.log('Saved!');
     });
@@ -123,14 +100,11 @@ function checkPermissions(message, array)
 {
     const role = roleToString(message.member);
 
-    for (let i = 0; i < array.length; i++)
-    {
-        if (role == array[i])
-        {
+    for (let i = 0; i < array.length; i++) {
+        if (role == array[i]) {
             return true;
         }
     }
-    //message.reply("You do not have permission to run that command!");
     return false;
 }
 
@@ -153,26 +127,13 @@ else
  * @returns role to string
  */
  function roleToString(member) {
-    for (var role in roleDictionary) {
-        if (member.roles.cache.find(r => r.name === roleDictionary[role])) {
+    for (var role in config.dictionary.role) {
+        if (member.roles.cache.find(r => r.name === config.dictionary.role[role])) {
             console.log(role)
             return role;
         }
     }
     return "user";
-}
-/**
- * 
- * @param {*} role 
- * @returns purge authority value of role
- */
- function purgeAuthorityValues(role) {
-    for (var purge in purgeDictionary) {
-        if (role == purge) {
-            return purgeDictionary[purge];
-        }
-    }
-    return 0;
 }
 
 /**
@@ -185,10 +146,10 @@ else
 function clamp(num, min, max) 
 {
     return num <= min 
-      ? min 
-      : num >= max 
-        ? max 
-        : num
+        ? min 
+        : num >= max 
+            ? max 
+            : num
 }
 
 /**
@@ -200,19 +161,16 @@ function clamp(num, min, max)
 function clampToRole(message, value)
 {
     let role = roleToString(message.member);
-    //console.log(role);
-    let val = purgeAuthorityValues(role);
+    let val = config.dictionary.purge[role] || undefined;
     let clamped = clamp(value, 1, val);
 
-    if (value > val)
-    {
+    if (value > val) {
         message.reply(role + " can only purge " + val + " messages!");
     }
     return clamped;
 }
 
-const prefix = "$";
-const cmdParser = new parser.commandParser(prefix);
+const cmdParser = new parser.commandParser(config.prefix);
 
 client.on('ready',()=>
 {
@@ -222,11 +180,8 @@ client.on('ready',()=>
 });
 
 client.on("messageDelete", message => {
-    if(!message.partial)
-    {
-        if(logsChannel)
-        {
-            //client.channels.cache.get(logsChannel).send(message.author.tag + " deleted " + message.content + " at " + message.channel.name + " channel");
+    if (!message.partial) {
+        if (config.ids.channel.logs) {
             delLog(message.author.tag + ` deleted message "` + message.content + `" at "` + message.channel.name + `" channel`);
         }
     }
@@ -240,21 +195,21 @@ const commands = {
             "type": "rich",
             "title": `Pong! 🏓`,
             "description": "",
-            "color": 0x00FFFF,
+            "color": config.color.main,
             "fields": [
-            {
-            "name": `Latency`,
-            "value": `${timeTaken}ms`,
-            "inline": true
-            },
-            {
-            "name": `API Latency`,
-            "value": `${apiLatency}ms`,
-            "inline": true
-            }
+                {
+                    "name": `Latency`,
+                    "value": `${timeTaken}ms`,
+                    "inline": true
+                },
+                {
+                    "name": `API Latency`,
+                    "value": `${apiLatency}ms`,
+                    "inline": true
+                }
             ],
             "footer": {
-            "text": `Made by zyapguy and sarp.`
+                "text": `Made by zyapguy and sarp.`
             }
         }
         //message.channel.send(`Pong! This message had a latency of ${timeTaken}ms.`);
@@ -287,10 +242,11 @@ const commands = {
             return;
         }
         message.channel.bulkDelete(clampToRole(message, amount))
-        .then(messages => message.channel.send(`Bulk deleted ${messages.size} messages.`))
-        .then(msg => {setTimeout(() => msg.delete(), 3000)
-        })
-       .catch()
+            .then(messages => message.channel.send(`Bulk deleted ${messages.size} messages.`))
+            .then(msg => {
+                setTimeout(() => msg.delete(), 3000)
+            })
+            .catch()
         log("<@" + message.author.id + ">" + "has purged " + clampToRole(message, amount) + " messages")
     },
     
@@ -317,7 +273,7 @@ const commands = {
                 
                 if(!reason) reason = 'Unspecified';
                 
-                const embed = new MessageEmbed().setTitle("Banned!").setColor('#ff0000').setDescription(`You have been banned from zyapguy's server for ${reasonWithoutID}.`)   
+                const embed = new MessageEmbed().setTitle("Banned!").setColor(config.color.problem).setDescription(`You have been banned from zyapguy's server for ${reasonWithoutID}.`)   
 
                 targetMember.send({ embeds: [embed] })
                 .then(() => {
@@ -327,7 +283,7 @@ const commands = {
                         log(memberThatIsGoingToBeBannedTag + " has been banned by " + "<@" + message.author.id + ">"  + " for " + reasonWithoutID);
                     })
                     .catch(() => {
-                        message.channel.send(`An unexpected error has occured. Please notify ${sarpSupportTag} and ${zyapSupportTag} about this.`);
+                        message.channel.send(`An unexpected error has occured. Please notify ${config.ids.suppport.sarp} and ${config.ids.suppport.zyap} about this.`);
                     })
                 })
             }
@@ -346,28 +302,26 @@ const commands = {
         const {member, mentions} = message;
 
 
-        if (checkPermissions(message, ["Mod","SrMod","Admin","zyapguy"])) 
-        {
+        if (checkPermissions(message, ["Mod", "SrMod", "Admin", "zyapguy"])) {
             const target = mentions.users.first();
             const memberThatIsGoingToBeSilentBannedTag = `<@${target.id}>`;
             let reason = message.content.slice(1);
             let reasonWithoutID = reason.slice(33);
 
             const targetMember = message.guild.members.cache.get(target.id);
-            
-            if(!reason) reason = 'Unspecified';
+
+            if (!reason) reason = 'Unspecified';
 
             targetMember.ban({ reason: `${reason}` })
 
-            .then(() => {
-                log(memberThatIsGoingToBeSilentBannedTag + " has been **SILENTLY** banned by " + "<@" + message.author.id + ">" + " for " + reasonWithoutID);
-            })
-            .then(msg => {
-                setTimeout(() => message.channel.bulkDelete(1), 200)
-            })
+                .then(() => {
+                    log(memberThatIsGoingToBeSilentBannedTag + " has been **SILENTLY** banned by " + "<@" + message.author.id + ">" + " for " + reasonWithoutID);
+                })
+                .then(msg => {
+                    setTimeout(() => message.channel.bulkDelete(1), 200)
+                })
         }
-        else
-        {
+        else {
             message.channel.bulkDelete(1)
             .then(() => {
                 message.channel.send(`That command does not exist.`);
@@ -389,29 +343,26 @@ const commands = {
     unban: (message, args=[""]) => {
         const {member, mentions} = message;
 
-        if (checkPermissions(message, ["Mod","SrMod","Admin","zyapguy","CmMod"]))
-        {
+        if (checkPermissions(message, ["Mod", "SrMod", "Admin", "zyapguy", "CmMod"])) {
             const memberThatIsGoingToBeUnbanned = message.content.split(" ")[1];
             const memberThatIsGoingToBeUnbannedTag = `<@${memberThatIsGoingToBeUnbanned}>`;
-            
+
             message.guild.members.unban(memberThatIsGoingToBeUnbanned)
 
-            .then(() => {
-                message.channel.send(`${memberThatIsGoingToBeUnbannedTag} has been unbanned successfully.`);
-                log(memberThatIsGoingToBeUnbannedTag + " has been unbanned by " + "<@" + message.author.id + ">"  + " for NO_REASON_SPECIFIED");
-            })
+                .then(() => {
+                    message.channel.send(`${memberThatIsGoingToBeUnbannedTag} has been unbanned successfully.`);
+                    log(memberThatIsGoingToBeUnbannedTag + " has been unbanned by " + "<@" + message.author.id + ">" + " for NO_REASON_SPECIFIED");
+                })
 
-            .catch(() => {
-                message.channel.send(`An unexpected error has occured. Please notify ${sarpSupportTag} and ${zyapSupportTag} about this.`);
-            })
+                .catch(() => {
+                    message.channel.send(`An unexpected error has occured. Please notify ${config.ids.suppport.sarp} and ${config.ids.suppport.zyap} about this.`);
+                })
 
-            if (memberThatIsGoingToBeUnbanned.length < 18 || memberThatIsGoingToBeUnbanned.length > 18)
-            {
+            if (memberThatIsGoingToBeUnbanned.length < 18 || memberThatIsGoingToBeUnbanned.length > 18) {
                 message.channel.send("<@" + message.author.id + ">" + `, please specify someone to ban using their id or the command won't work.`);
             }
         }
-        else
-        {
+        else {
             message.channel.send("<@" + message.author.id + ">" + `, you don't have the right permissions to use this command.`);
         }
     },
@@ -425,29 +376,27 @@ const commands = {
         const target = mentions.users.first();
         const memberThatIsGoingToBeKickedTag = `<@${target}>`;
 
-        if (checkPermissions(message, ["Mod","SrMod","Admin","zyapguy","CmMod"]))
-        {
+        if (checkPermissions(message, ["Mod", "SrMod", "Admin", "zyapguy", "CmMod"])) {
 
             const targetMember = message.guild.members.cache.get(target.id);
-            
+
             if (!target) return message.channel.send("<@" + message.author.id + ">" + `, please specify someone to kick.`);
-            
-            const embed = new MessageEmbed().setTitle("Kicked!").setColor('#ff0000').setDescription(`You have been kicked from zyapguy's server.`)  
+
+            const embed = new MessageEmbed().setTitle("Kicked!").setColor(config.color.problem).setDescription(`You have been kicked from zyapguy's server.`)
 
             targetMember.send({ embeds: [embed] })
-            .then(() => {
-                targetMember.kick()
                 .then(() => {
-                    message.channel.send(`${targetMember} has been kicked successfully.`);
-                    log(memberThatIsGoingToBeKickedTag + " has been kicked by " + "<@" + message.author.id + ">");
+                    targetMember.kick()
+                        .then(() => {
+                            message.channel.send(`${targetMember} has been kicked successfully.`);
+                            log(memberThatIsGoingToBeKickedTag + " has been kicked by " + "<@" + message.author.id + ">");
+                        })
+                        .catch(() => {
+                            message.channel.send(`An unexpected error has occured. Please notify ${config.ids.suppport.sarp} and ${config.ids.suppport.zyap} about this.`);
+                        })
                 })
-                .catch(() => {
-                    message.channel.send(`An unexpected error has occured. Please notify ${sarpSupportTag} and ${zyapSupportTag} about this.`);
-                })
-            })
         }
-        else
-        {
+        else {
             message.channel.send("<@" + message.author.id + ">" + `, you don't have the right permissions to use this command.`);
         }
     },
@@ -464,155 +413,96 @@ const commands = {
         let answer2 = args[2];
 
         let embedPoll = new MessageEmbed()
-        .setTitle('📝 Poll - ' + pollTitle)
-        .setDescription("✅" + answer1 + " / " + "❌" + answer2)
-        .setColor('YELLOW')
-        .setFooter("Poll starter: " + message.author.tag)
+            .setTitle('📝 Poll - ' + pollTitle)
+            .setDescription("✅" + answer1 + " / " + "❌" + answer2)
+            .setColor('YELLOW')
+            .setFooter("Poll starter: " + message.author.tag)
 
-        if (checkPermissions(message, ["Mod","SrMod","Admin","zyapguy","Helper","CmMod"]))
-        {                
+        if (checkPermissions(message, ["Mod", "SrMod", "Admin", "zyapguy", "Helper", "CmMod"])) {
             message.channel.bulkDelete(1)
-            .then(async() => {
-                let msgEmbed = await message.channel.send({embeds: [embedPoll]});
-                await msgEmbed.react('✅');
-                await msgEmbed.react('❌');
-            });
-            
-            //let msgEmbed = await message.channel.send({embeds: [embedPoll]});
-            //await msgEmbed.react('✅');
-            //await msgEmbed.react('❌');
+                .then(async () => {
+                    let msgEmbed = await message.channel.send({ embeds: [embedPoll] });
+                    await msgEmbed.react('✅');
+                    await msgEmbed.react('❌');
+                });
         }
-        else
-        {
+        else {
             message.channel.send("<@" + message.author.id + ">" + `, you don't have the right permissions to use this command.`);
         }
     },
-  
+
     say: (message, args=[""]) => {
         var body = commandBody.replace(command + ' ', '');
-        
-        if (checkPermissions(message, ["Mod","SrMod","Admin","zyapguy","CmMod"]))
-        {
+
+        if (checkPermissions(message, ["Mod", "SrMod", "Admin", "zyapguy", "CmMod"])) {
             message.channel.bulkDelete(1)
-            .then(() => {
-                message.channel.send(body)
                 .then(() => {
-                    log("<@" + message.author.id + ">" + " sent: '" + body + "' using the say command");
+                    message.channel.send(body)
+                        .then(() => {
+                            log("<@" + message.author.id + ">" + " sent: '" + body + "' using the say command");
+                        });
                 });
-            });
         }
-        else
-        {
+        else {
             message.channel.send("<@" + message.author.id + ">" + `, you don't have the right permissions to use this command.`);
         }
     },
 
     stg: (message, args=[""]) => {            
         var body = commandBody.replace(command + ' ', '');
-        if (checkPermissions(message, ["Mod", "SrMod", "Admin", "zyapguy", "CmMod"]))
-        {
+        if (checkPermissions(message, ["Mod", "SrMod", "Admin", "zyapguy", "CmMod"])) {
             client.channels.cache.get('867441128725807105').send(body);
         }
     },
-
-    /*
-    if (command === "help")
-    {
-        const helpEmbed = {
-        "title": `🤖 - Bot Help`,
-        "description": "Prefix: `$`",
-        "color": 0x00FFFF,
-        "fields": [
-            {
-                "name": `Ping`,
-                "value": `You can use the ping command to see the delay between your message and the bot.\nUsage example: \`$ping\``
-            },
-            {
-                "name": `Purge`,
-                "value": `Community moderators and higher users can use the purge command to bulk delete messages that the command ran at.\nUsage example: \`$purge (amount)\``
-            },
-            {
-                "name": `Socials`,
-                "value": `*not implemented yet*\nYou can use the socials command to see the social media accounts of zyapguy.\nUsage example: \`$socials\``
-            },
-            {
-                "name": `Poll`,
-                "value": `You can use the poll command to make a new poll with 2 answers if you are a helper or hirgher.\nUsage example: \`$poll your question, answer 1, answer 2\``
-            },
-            {
-                "name": `Say`,
-                "value": `*not implemented yet*`
-            },
-            {
-                "name": `Kick`,
-                "value": `You can use the kick command to kick users from the server if you are a community moderator or higher.\nUsage example: \`$kick @user\``
-            },
-            {
-                "name": `Ban`,
-                "value": `You can use the ban command to ban users from the server if you are a moderator or higher.\nUsage example: \`$ban @user (reason)\``
-            },
-            {
-                "name": `Unban`,
-                "value": `You can use the unban command to unban users that were banned before if you are a moderator or higher.\nUsage example: \`$unban userid\`\n **IF YOU PING THE USER INSTEAD OF WRITING THE USER ID, THE BOT WILL CRASH!**`
-            }
-            ],
-            "footer": {
-                "text": `Made by Beriff#3224, zyapguy#0320 and sarp#2063`
-            }
-        };
-        message.channel.send({embeds: [helpEmbed]});
-    }
-    */
 
     help: (message, args=[""]) => {
         const embed1 = new MessageEmbed()
             .setTitle('🤖 - Bot Help')
             .setDescription('Prefix: `$`')
-            .setColor(0x00FFFF)
+            .setColor(config.color.main)
             .setFields(
-            {
-                "name": `Ping`,
-                "value": `You can use the ping command to see the delay between your message and the bot.\nUsage example: \`$ping\``
-            },
-            {
-                "name": `Purge`,
-                "value": `Community moderators and higher users can use the purge command to bulk delete messages that the command ran at.\nUsage example: \`$purge (amount)\``
-            },
-            {
-                "name": `Socials`,
-                "value": `*not implemented yet*\nYou can use the socials command to see the social media accounts of zyapguy.\nUsage example: \`$socials\``
-            },
-            {
-                "name": `Poll`,
-                "value": `You can use the poll command to make a new poll with 2 answers if you are a helper or hirgher.\nUsage example: \`$poll your question, answer 1, answer 2\``
-            },
-            {
-                "name": `Say`,
-                "value": `*not implemented yet*`
-            }
+                {
+                    "name": `Ping`,
+                    "value": `You can use the ping command to see the delay between your message and the bot.\nUsage example: \`$ping\``
+                },
+                {
+                    "name": `Purge`,
+                    "value": `Community moderators and higher users can use the purge command to bulk delete messages that the command ran at.\nUsage example: \`$purge (amount)\``
+                },
+                {
+                    "name": `Socials`,
+                    "value": `*not implemented yet*\nYou can use the socials command to see the social media accounts of zyapguy.\nUsage example: \`$socials\``
+                },
+                {
+                    "name": `Poll`,
+                    "value": `You can use the poll command to make a new poll with 2 answers if you are a helper or hirgher.\nUsage example: \`$poll your question, answer 1, answer 2\``
+                },
+                {
+                    "name": `Say`,
+                    "value": `*not implemented yet*`
+                }
             );
 
-        
         const embed2 = new MessageEmbed()
             .setTitle('🤖 - Bot Help')
             .setDescription('Prefix: `$`')
-            .setColor(0x00FFFF)
+            .setColor(config.color.main)
             .setFields(
-            {
-                "name": `Kick`,
-                "value": `You can use the kick command to kick users from the server if you are a community moderator or higher.\nUsage example: \`$kick @user\``
-            },
-            {
-                "name": `Ban`,
-                "value": `You can use the ban command to ban users from the server if you are a moderator or higher.\nUsage example: \`$ban @user (reason)\``
-            },
-            {
-                "name": `Unban`,
-                "value": `You can use the unban command to unban users that were banned before if you are a moderator or higher.\nUsage example: \`$unban userid\`\n **IF YOU PING THE USER INSTEAD OF WRITING THE USER ID, THE BOT WILL CRASH!**`
-            },
+                {
+                    "name": `Kick`,
+                    "value": `You can use the kick command to kick users from the server if you are a community moderator or higher.\nUsage example: \`$kick @user\``
+                },
+                {
+                    "name": `Ban`,
+                    "value": `You can use the ban command to ban users from the server if you are a moderator or higher.\nUsage example: \`$ban @user (reason)\``
+                },
+                {
+                    "name": `Unban`,
+                    "value": `You can use the unban command to unban users that were banned before if you are a moderator or higher.\nUsage example: \`$unban userid\`\n **IF YOU PING THE USER INSTEAD OF WRITING THE USER ID, THE BOT WILL CRASH!**`
+                },
             )
-	    .setFooter('Made by Beriff, Sarp and Zyapguy');
-        
+            .setFooter('Made by Beriff, Sarp and Zyapguy');
+
         const button1 = new MessageButton()
             .setCustomId('previousbtn')
             .setLabel('Previous')
@@ -645,20 +535,18 @@ const commands = {
         const target = message.mentions.members.first();
         let roleContent = message.content.slice(32);
 
-        if (checkPermissions(message, ["Mod", "SrMod", "Admin", "zyapguy", "CmMod"]))
-        {
+        if (checkPermissions(message, ["Mod", "SrMod", "Admin", "zyapguy", "CmMod"])) {
             const targetMember = message.guild.members.cache.get(target.id);
             let role = message.guild.roles.cache.find(r => r.name === roleContent);
             target.roles.add(role)
-            .then(() => {
-                message.channel.send(`The role has been given to ${targetMember} successfully.`);
-            })
-            .catch(() => {
-                message.channel.send(`Are you sure that you wrote the user or the role right?`);
-            });
+                .then(() => {
+                    message.channel.send(`The role has been given to ${targetMember} successfully.`);
+                })
+                .catch(() => {
+                    message.channel.send(`Are you sure that you wrote the user or the role right?`);
+                });
         }
-		else
-        {
+        else {
             message.channel.send("<@" + message.author.id + ">" + `, you don't have the right permissions to use this command.`);
         }
     },
@@ -674,20 +562,18 @@ const commands = {
 
         if (target == '291592918592913408' || target == '356881136984522763') return message.channel.send("nope, not gonna do that.");
 
-        if (checkPermissions(message, ["Mod", "SrMod", "Admin", "zyapguy", "CmMod"]))
-        {
+        if (checkPermissions(message, ["Mod", "SrMod", "Admin", "zyapguy", "CmMod"])) {
             const targetMember = message.guild.members.cache.get(target.id);
             let role = message.guild.roles.cache.find(r => r.name === roleContent);
             target.roles.remove(role)
-            .then(() => {
-                message.channel.send(`The role has been removed from ${targetMember} successfully.`);
-            })
-            .catch(() => {
-                message.channel.send(`Are you sure that you wrote the user or the role right?`);
-            });
+                .then(() => {
+                    message.channel.send(`The role has been removed from ${targetMember} successfully.`);
+                })
+                .catch(() => {
+                    message.channel.send(`Are you sure that you wrote the user or the role right?`);
+                });
         }
-		else
-        {
+        else {
             message.channel.send("<@" + message.author.id + ">" + `, you don't have the right permissions to use this command.`);
         }
     },
@@ -705,19 +591,18 @@ const commands = {
         {
             const target = message.mentions.users.first();
             let target1 = message.mentions.members.first() || await message.guild.members.fetch(args[0]);
-            
+
             const embed = new Discord.MessageEmbed()
-                .setColor('#FFD700')
+                .setColor(config.color.info)
                 .setTitle(`Info for ${target.tag}`)
                 .setDescription(`
                     Account Created At: ${target.createdAt.toLocaleString()}
                     Account Joined At: ${target1.joinedAt.toLocaleString()}
                 `)
                 .setImage(target.displayAvatarURL())
-                message.channel.send({embeds : [embed]})
-        }    
-        else
-        {
+            message.channel.send({ embeds: [embed] })
+        }
+        else {
             message.channel.send("<@" + message.author.id + ">" + `, you don't have the right permissions to use this command.`);
         }
     },
@@ -726,24 +611,23 @@ const commands = {
         if (checkPermissions(message, ["Mod", "SrMod", "Admin", "zyapguy", "CmMod"]))
         {
             // best if statement ever that is totally needed
-            if(!Number.isInteger(parseInt(args[0]))) return message.channel.send("31?")
+            if (!Number.isInteger(parseInt(args[0]))) return message.channel.send("31?")
 
             let secondsleft = parseInt(args[0]) + 1
 
             const countdownMessage = message.channel.send("Starting countdown!")
 
             const countdown = setInterval(() => {
-                if(secondsleft <= 1){
+                if (secondsleft <= 1) {
                     clearInterval(countdown);
-                    countdownMessage.then(m => {m.edit("Countdown done!")})
+                    countdownMessage.then(m => { m.edit("Countdown done!") })
                 } else {
-                    countdownMessage.then(m => {m.edit(secondsleft.toString())})
+                    countdownMessage.then(m => { m.edit(secondsleft.toString()) })
                 }
                 secondsleft -= 1;
             }, 1000);
         }
-        else
-        {
+        else {
             message.channel.send("<@" + message.author.id + ">" + `, you don't have the right permissions to use this command.`);
         }
     },
@@ -752,21 +636,17 @@ const commands = {
         let confirmContent = message.content.slice(10);
         console.log(confirmContent);
 
-        if (checkPermissions(message, ["Mod", "SrMod", "Admin", "zyapguy", "CmMod"]))
-        {
-            if (confirmContent == "yes")
-            {
+        if (checkPermissions(message, ["Mod", "SrMod", "Admin", "zyapguy", "CmMod"])) {
+            if (confirmContent == "yes") {
                 message.channel.send("Shutting down...").then(() => {
                     client.destroy();
                 });
             }
-            else
-            {
+            else {
                 message.channel.send("Write `$shutdown yes` to confirm the shutdown of the bot.");
             }
         }
-        else
-        {
+        else {
             message.channel.send("<@" + message.author.id + ">" + `, you don't have the right permissions to use this command.`);
         }
     }
@@ -775,7 +655,7 @@ const commands = {
 client.on("message", async message => 
 {
     if (message.author.bot) return;
-    if (!message.content.startsWith(prefix)) return;
+    if (!message.content.startsWith(config.prefix)) return;
     
     var parsed = cmdParser.parse(message.content);
     if (parsed.name in commands)
