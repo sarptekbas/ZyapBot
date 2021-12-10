@@ -16,6 +16,7 @@ const Discord = require('discord.js');
 const { MessageButton, MessageEmbed } = require('discord.js');
 const paginationEmbed = require('discordjs-button-pagination');
 const parser = require('./assets/parser.js')
+const { LogTypes, Logger } = require('./assets/logger.js')
 
 require('dotenv').config();
 const token = process.env.TOKEN;
@@ -26,6 +27,7 @@ const fs = require('fs');
 const config = require('./config.json');
 
 const delay = (msec) => new Promise((resolve) => setTimeout(resolve, msec));
+const botLogger = new Logger('logs.txt');
 
 /**
  * 
@@ -58,21 +60,6 @@ function getTime()
     return year + "-" + month + "-" + date + " " + hours + ":" + minutes + ":" + seconds;
 }
 
-/**
- * 
- * @summary writes to log file
- * @param {*} log 
- */
-function log(log)
-{
-    client.channels.cache.get(config.ids.channel.logs).send("[LOG " + getTime() + "] " + log);
-    const toLog = "[LOG " + getTime() + "] " + log + "\n";
-
-    fs.appendFile('logs.txt', toLog, function (err) {
-        if (err) throw err;
-        console.log('Saved!');
-    });
-}
 
 /**
  * 
@@ -224,7 +211,7 @@ const commands = {
         {
             toLog += args[i] + " ";
         }
-        log(toLog);
+        botLogger.log(LogTypes.INFO, 'USER_INVOKED_COMMAND', toLog);
     },
 
     /* Purge(purge)
@@ -247,7 +234,7 @@ const commands = {
                 setTimeout(() => msg.delete(), 3000)
             })
             .catch()
-        log("<@" + message.author.id + ">" + "has purged " + clampToRole(message, amount) + " messages")
+        botLogger.log(LogTypes.INFO, 'PURGE', `<@${message.author.id}> has purged ${clampToRole(message, amount)} messages`);
     },
     
 
@@ -280,7 +267,7 @@ const commands = {
                     targetMember.ban({ reason: `${reason}` })
                     .then(() => {
                         message.channel.send(`${targetMember} has been banned for "${reasonWithoutID}" successfully.`);
-                        log(memberThatIsGoingToBeBannedTag + " has been banned by " + "<@" + message.author.id + ">"  + " for " + reasonWithoutID);
+                        botLogger.log(LogTypes.INFO, 'BAN', `${memberThatIsGoingToBeBannedTag} has been banned by <@${message.author.id}> for ${reasonWithoutID}`);
                     })
                     .catch(() => {
                         message.channel.send(`An unexpected error has occured. Please notify ${config.ids.suppport.sarp} and ${config.ids.suppport.zyap} about this.`);
@@ -315,7 +302,7 @@ const commands = {
             targetMember.ban({ reason: `${reason}` })
 
                 .then(() => {
-                    log(memberThatIsGoingToBeSilentBannedTag + " has been **SILENTLY** banned by " + "<@" + message.author.id + ">" + " for " + reasonWithoutID);
+                    botLogger.log(LogTypes.INFO, 'SILENT_BAN', `${memberThatIsGoingToBeSilentBannedTag} has been **SILENTLY** banned by <@${message.author.id}> for ${reasonWithoutID}`);
                 })
                 .then(msg => {
                     setTimeout(() => message.channel.bulkDelete(1), 200)
@@ -351,7 +338,7 @@ const commands = {
 
                 .then(() => {
                     message.channel.send(`${memberThatIsGoingToBeUnbannedTag} has been unbanned successfully.`);
-                    log(memberThatIsGoingToBeUnbannedTag + " has been unbanned by " + "<@" + message.author.id + ">" + " for NO_REASON_SPECIFIED");
+                    botLogger.log(LogTypes.INFO, 'UNBAN', memberThatIsGoingToBeUnbannedTag + " has been unbanned by " + "<@" + message.author.id + ">" + " for NO_REASON_SPECIFIED");
                 })
 
                 .catch(() => {
@@ -389,7 +376,7 @@ const commands = {
                     targetMember.kick()
                         .then(() => {
                             message.channel.send(`${targetMember} has been kicked successfully.`);
-                            log(memberThatIsGoingToBeKickedTag + " has been kicked by " + "<@" + message.author.id + ">");
+                            botLogger.log(LogTypes.INFO, 'KICK', memberThatIsGoingToBeKickedTag + " has been kicked by " + "<@" + message.author.id + ">");
                         })
                         .catch(() => {
                             message.channel.send(`An unexpected error has occured. Please notify ${config.ids.suppport.sarp} and ${config.ids.suppport.zyap} about this.`);
@@ -439,7 +426,7 @@ const commands = {
                 .then(() => {
                     message.channel.send(body)
                         .then(() => {
-                            log("<@" + message.author.id + ">" + " sent: '" + body + "' using the say command");
+                            botLogger.log(LogTypes.INFO, 'SAY', "<@" + message.author.id + ">" + " sent: '" + body + "' using the say command");
                         });
                 });
         }
