@@ -66,5 +66,3 @@ nodemon index.js
 ## License
 
 MIT
-
-**Free Software, Hell Yeah!**
