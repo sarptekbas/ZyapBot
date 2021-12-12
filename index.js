@@ -199,10 +199,7 @@ const commands = {
                 "text": `Made by zyapguy and sarp.`
             }
         }
-        //message.channel.send(`Pong! This message had a latency of ${timeTaken}ms.`);
-        //message.channel.send(`Pong! The bot's latency to the API is ${apiLatency}ms.`)
         message.channel.send({embeds: [pingEmbed]});
-        //message.reply(`Ping command is deprecated!`);
     },
 
     log: (message, args=[""]) => {
@@ -324,8 +321,7 @@ const commands = {
     // -----------------------------
     // !! IMPORTANT NOTE !!
     // You need to write the ID of the banned person,
-    // If you just @ the user that was banned
-    // THE BOT WILL CRASH!
+    // If you @ the person who is banned, the command won't work
     // ----------------------------- 
     unban: (message, args=[""]) => {
         const {member, mentions} = message;
