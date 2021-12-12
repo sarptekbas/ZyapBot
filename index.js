@@ -63,22 +63,6 @@ function getTime()
 
 /**
  * 
- * @summary logs deleted messages
- * @param {*} log 
- */
-function delLog(log)
-{
-    client.channels.cache.get(config.ids.channel.logs).send("[DELETION " + getTime() + "] " + log);
-    const toLog = "[MESSAGE DELETED " + getTime() + "] " + log + "\n";
-
-    fs.appendFile('logs.txt', toLog, function (err) {
-        if (err) throw err;
-        console.log('Saved!');
-    });
-}
-
-/**
- * 
  * @param {*} message 
  * @param {*} array 
  * @returns if has perms 
@@ -169,7 +153,7 @@ client.on('ready',()=>
 client.on("messageDelete", message => {
     if (!message.partial) {
         if (config.ids.channel.logs) {
-            delLog(message.author.tag + ` deleted message "` + message.content + `" at "` + message.channel.name + `" channel`);
+            botLogger.log(LogTypes.INFO, "DELETED_MESSAGE", message.author.tag + ` deleted message "` + message.content + `" at "` + message.channel.name + `" channel`);
         }
     }
 });
@@ -581,6 +565,9 @@ const commands = {
                 .setDescription(`
                     Account Created At: ${target.createdAt.toLocaleString()}
                     Account Joined At: ${target1.joinedAt.toLocaleString()}
+                    Presence:
+                        Status: ${target.presence.status}
+                        Activity: **${target.presence.activities[0].type}** ${target.presence.activities[0].name}
                 `)
                 .setImage(target.displayAvatarURL())
             message.channel.send({ embeds: [embed] })
