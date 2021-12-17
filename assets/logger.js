@@ -3,6 +3,8 @@
  * @summary Logger
  */
 
+const fs = require("fs");
+
 /**
  * 
  * @summary types of log messages
@@ -40,7 +42,10 @@ const Logger = class {
 	 * @param {LogTypes.*} type
 	 */
 	logTypeToStr(type) {
-		for (var [key, val] in LogTypes) {
+        var entries = Object.entries(LogTypes);
+		for (let i = 0; i < entries.length; i++) {
+            var key = entries[i][0];
+            var val = entries[i][1];
 			if (val === type)
 				return key;
 		}
@@ -55,7 +60,7 @@ const Logger = class {
 	 * @param {string} content
 	 */
 	log(type, from, content) {
-		fs.appendFile(this.outfile, format(type, from, content), err => {
+		fs.appendFile(this.outfile, this.format(type, from, content) + "\n", err => {
 	        if (err)
 	        	console.error(`[LOGGER]: Failed to append to file: ${this.outfile}:\n${err}`);
 	    });
